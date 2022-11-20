@@ -11,9 +11,9 @@ Why LISP?!
 
 You might expect that a book on the incompleteness theorems would include material on symbolic logic and that it would present a formal axiomatic system, for example, Peano arithmetic. Well, this book won't! First, because formalisms for deduction failed and formalisms for computation succeeded. So instead I'll show you a beautiful and highly mathematical formalism for expressing algorithms, LISP. The other important reason for showing you LISP instead of a formal axiomatic system is that I can prove incompleteness results in a very general way without caring about the internal details of the formal axiomatic system. To me a formal axiomatic system is like a black box that theorems come out of. My methods for obtaining incompleteness theorems are so general that all I need to know is that there's a proof-checking algorithm.
 
-So this is a post-modern book on incompleteness! If you look at another little book on incompleteness, Nagel & Newman's _G�del's Proof,_ which I enjoyed greatly as a child, you'll see plenty of material on symbolic logic, and **no** material on computing. In my opinion the right way to think about all this now is to start with computing, not with logic. So that's the way I'm going to do things here. There's no point in writing this book if I do everything the way everyone else does!
+So this is a post-modern book on incompleteness! If you look at another little book on incompleteness, Nagel & Newman's _G&#246;del's Proof,_ which I enjoyed greatly as a child, you'll see plenty of material on symbolic logic, and **no** material on computing. In my opinion the right way to think about all this now is to start with computing, not with logic. So that's the way I'm going to do things here. There's no point in writing this book if I do everything the way everyone else does!
 
-LISP means "list processing," and was invented by John McCarthy and others at the MIT Artificial Intelligence Lab around 1960. You can do numerical calculations in LISP, but it's really intended for symbolic calculations. In fact LISP is really a computerized version of set theory, at least set theory for finite sets. It's a simple but very powerful mathematical formalism for expressing algorithms, and I'm going to use it in Chapters [III,](https://web.archive.org/web/20131029222945/http://cs.umaine.edu/~chaitin/unknowable/ch3.html) [IV](https://web.archive.org/web/20131029222945/http://cs.umaine.edu/~chaitin/unknowable/ch4.html) & [V](https://web.archive.org/web/20131029222945/http://cs.umaine.edu/~chaitin/unknowable/ch5.html) to present G�del, Turing's and my work in detail. The idea is to start with a small number of powerful concepts, and get everything from that. So LISP, the way I do it, is more like mathematics than computing.
+LISP means "list processing," and was invented by John McCarthy and others at the MIT Artificial Intelligence Lab around 1960. You can do numerical calculations in LISP, but it's really intended for symbolic calculations. In fact LISP is really a computerized version of set theory, at least set theory for finite sets. It's a simple but very powerful mathematical formalism for expressing algorithms, and I'm going to use it in Chapters III, IV & V to present G&#246;del, Turing's and my work in detail. The idea is to start with a small number of powerful concepts, and get everything from that. So LISP, the way I do it, is more like mathematics than computing.
 
 And LISP is rather different from ordinary work-a-day programming languages, because instead of executing or running programs you think about evaluating expressions. It's an expression-based or functional programming language rather than a statement-based imperative programming language.
 
@@ -24,9 +24,9 @@ S-expressions, lists & atoms, the empty list
 
 The basic concept in LISP is that of a _symbolic_ or S-expression. What's an S-expression? Well, an S-expression is either an _atom_, which can either be a natural number like 345 or a word like Frederick, or it's a _list_ of atoms or sub-lists. Here are three examples of S-expressions:
 
-```lisp
-> (), (a b c), (+ (* 3 4) (* 5 6))
-```
+1. `()`
+1. `(a b c)`
+1. `(+ (* 3 4) (* 5 6))`
 
 The first example is the empty list (), also called _nil_. The second example is a list of three elements, the atoms _a_, _b_ and _c_. And the third example is a list of three elements. The first is the atom +, and the second and the third are lists of three elements, which are atoms. And you can nest lists to arbitrary depth. You can have lists of lists of lists...
 
@@ -43,14 +43,14 @@ Arithmetic in LISP
 
 Let's look at some simple LISP expressions, expressions for doing arithmetic. For example, here is an arithmetic expression that adds the product of 3 and 4 to the product of 5 and 6:
 
-```
-> 3*4 + 5*6
+```lisp
+3*4 + 5*6
 ```
 
 The first step to convert this to LISP is to put in **all** the parentheses:
 
-```
-> ((3*4) + (5*6))
+```lisp
+((3*4) + (5*6))
 ```
 
 And the next step to convert this to LISP is to put the operators before the operands (prefix notation), rather than in the middle (infix notation):
@@ -59,44 +59,44 @@ And the next step to convert this to LISP is to put the operators before the ope
 > (+(*34)(*56))
 ```
 
-And now we need to use blanks to separate the elements of a list if parentheses don't do that for us. So the final result is
+And now we need to use blanks to separate the elements of a list if parentheses don't do that for us. So the final result is:
 
 ```
-> (+(* 3 4)(* 5 6))
+(+(* 3 4)(* 5 6))
 ```
 
 which is already understandable, or
 
 ```
-> (+ (* 3 4) (* 5 6))
+(+ (* 3 4) (* 5 6))
 ```
 
 which is the standard LISP notation in which the successive elements of a list are always separated by a single blank. Extra blanks, if included, are ignored. Extra parentheses are **not** ignored, they completely change the meaning of an S-expression.
 
-```
-> (((X)))
+```lisp
+(((X)))
 ```
 is **not** the same as X!
 
 What are the built-in operators, i.e., the primitive functions, that are provided for doing arithmetic in LISP? Well, in my LISP there's
 
-* addition "+", *
-* multiplication "*",
-* subtraction "-", *
-* exponentiation "^",
+* addition `+`,
+* multiplication `*`,
+* subtraction `-`
+* exponentiation `^`,
 
 and, for comparisons,
 
-* less-than "<",
-* greater-than ">",
-* equal "=",
-* less-than-or-equal "<=", and
-* greater-than-or-equal ">=".
+* less-than `<`,
+* greater-than `>`,
+* equal `=`,
+* less-than-or-equal `<=`, and
+* greater-than-or-equal `>=`.
 
 I only provide natural numbers in my LISP, so there are no negative integers. If the result of a subtraction is less than zero, it gives 0 instead. Comparisons either give _true_ or _false_. All these operators, or functions, always have two operands, or arguments. Addition and multiplication of more than two operands requires several + or * operations. Here are examples of arithmetic expressions in LISP, together with their values.
 
 ```lisp
-> (+ 1 (+ 2 (+ 3 4)))
+(+ 1 (+ 2 (+ 3 4)))
 ```
 is the same as
 ```lisp
@@ -105,40 +105,40 @@ is the same as
 is the same as `(+ 1 9)` which yields 10,
 
 ```lisp
-> (+ (+ 1 2) (+ 3 4))
+(+ (+ 1 2) (+ 3 4))
 ```
 is the same as `(+ 3 7)` which yields 10,
 
 ```lisp
-> (- 10 7)
+(- 10 7)
 ```
 yields 3,
 
 ```lisp
-> (- 7 10)
+(- 7 10)
 ```
 yields 0,
 
 ```lisp
-> (+ (\* 3 4) (\* 5 6))
+(+ (\* 3 4) (\* 5 6))
 ```
 is the same as `(+ 12 30)` which yields 42,
 
 ```lisp
-> (^ 2 10)
+(^ 2 10)
 ```
 yields 1024,
 
 ```lisp
-> (< (\* 10 10) 101)
+(< (\* 10 10) 101)
 ```
-is the same as `(< 100 101)` which yields true,
+is the same as `(< 100 101)` which yields _true_,
 
 ```lisp
-> (= (* 10 10) 101)
+(= (* 10 10) 101)
 ```
 
-is the same as (= 100 101) which yields false.
+is the same as `(= 100 101)` which yields _false_.
 
 M-expressions
 -------------
@@ -146,46 +146,46 @@ M-expressions
 In addition to the official LISP S-expressions, there are also _meta_ or M-expressions. These are just intended to be helpful, as a convenient abbreviation for the official S-expressions. Programmers usually write M-expressions, and then the LISP interpreter converts them into S-expressions before processing them. M-expressions omit some of the parentheses, the ones that group the primitive built-in functions together with their arguments. M-expression notation works because all built-in primitive functions in my LISP have a fixed-number of operands or arguments. Here are the M-expressions for the above examples.
 
 ```lisp
-> + 1 + 2 + 3 4
++ 1 + 2 + 3 4
 ```
 is the same as `(+ 1 (+ 2 (+ 3 4)))`,
 
 ```lisp
-> + + 1 2 + 3 4
++ + 1 2 + 3 4
 ```
 is the same as `(+ (+ 1 2) (+ 3 4))`,
 
 ```lisp
-> - 10 7
+- 10 7
 ```
 
 is the same as `(- 10 7)` ,
 
 ```lisp
-> - 7 10
+- 7 10
 ```
 is the same as `(- 7 10)`,
 
 ```lisp
-> + * 3 4 * 5 6
++ * 3 4 * 5 6
 
 ```
 
 is the same as `(+ (* 3 4) (* 5 6))`,
 
 ```
-> ^ 2 10
+^ 2 10
 ```
 
 is the same as `(^ 2 10)`,
 
 ```
-> < * 10 10 101
+< * 10 10 101
 ```
 is the same as `(< (* 10 10) 101)`,
 
 ```lisp
-> = * 10 10 101
+= * 10 10 101
 ```
 is the same as `(= (* 10 10) 101)`.
 
@@ -221,14 +221,14 @@ The factorial function has one argument, _N_, and is defined as follows. If _N_ 
 So using this definition, we see that (fact 4) is the same as
 
 ```lisp
-> (\* 4 (fact 3))
-> (\* 4 (\* 3 (fact 2)))
-> (\* 4 (\* 3 (\* 2 (fact 1))))
-> (\* 4 (\* 3 (\* 2 (\* 1 (fact 0)))))
-> (\* 4 (\* 3 (\* 2 (\* 1 1))))
-> (\* 4 (\* 3 (\* 2 1)))
-> (\* 4 (\* 3 2))
-> (\* 4 6)
+(\* 4 (fact 3))
+(\* 4 (\* 3 (fact 2)))
+(\* 4 (\* 3 (\* 2 (fact 1))))
+(\* 4 (\* 3 (\* 2 (\* 1 (fact 0)))))
+(\* 4 (\* 3 (\* 2 (\* 1 1))))
+(\* 4 (\* 3 (\* 2 1)))
+(\* 4 (\* 3 2))
+(\* 4 6)
 ```
 
 which yields 24.
@@ -243,33 +243,33 @@ The examples I've given so far are all numerical arithmetic. But LISP is actuall
 _Car_ and _cdr_ are the funny names of the operations for breaking a list into pieces. These names were chosen for historical reasons, and no longer make any sense, but everyone knows them. If one could start over you'd call car, head or first and you'd call cdr, tail or rest. Car returns the first element of a list, and cdr returns what's left without the first element. And _cons_ is the inverse operation, it joins a head to a tail, it adds an element to the beginning of a list. Here are some examples, written in S-expression notation:
 
 ```
-> (car (' (a b c))) yields a,
-> (cdr (' (a b c))) yields (b c),
-> (car (' ((a) (b) (c)))) yields (a),
-> (cdr (' ((a) (b) (c)))) yields ((b) (c)),
-> (car (' (a))) yields a,
-> (cdr (' (a))) yields (),
-> (cons (' a) (' (b c))) yields (a b c),
-> (cons (' (a)) (' ((b) (c)))) yields ((a) (b) (c)),
-> (cons (' a) (' ())) yields (a),
-> (cons (' a) nil) yields (a),
-> (cons a nil) yields (a).
+(car (' (a b c))) yields a,
+(cdr (' (a b c))) yields (b c),
+(car (' ((a) (b) (c)))) yields (a),
+(cdr (' ((a) (b) (c)))) yields ((b) (c)),
+(car (' (a))) yields a,
+(cdr (' (a))) yields (),
+(cons (' a) (' (b c))) yields (a b c),
+(cons (' (a)) (' ((b) (c)))) yields ((a) (b) (c)),
+(cons (' a) (' ())) yields (a),
+(cons (' a) nil) yields (a),
+(cons a nil) yields (a).
 ```
 
 Maybe these are easier to understand in M-expression notation:
 
 ```
-> car '(a b c) yields a,
-> cdr '(a b c) yields (b c),
-> car '((a) (b) (c)) yields (a),
-> cdr '((a) (b) (c)) yields ((b) (c)),
-> car '(a) yields a,
-> cdr '(a) yields (),
-> cons 'a '(b c) yields (a b c),
-> cons '(a) '((b) (c)) yields ((a) (b) (c)),
-> cons 'a '() yields (a),
-> cons 'a nil yields (a),
-> cons a nil yields (a).
+car '(a b c) yields a,
+cdr '(a b c) yields (b c),
+car '((a) (b) (c)) yields (a),
+cdr '((a) (b) (c)) yields ((b) (c)),
+car '(a) yields a,
+cdr '(a) yields (),
+cons 'a '(b c) yields (a b c),
+cons '(a) '((b) (c)) yields ((a) (b) (c)),
+cons 'a '() yields (a),
+cons 'a nil yields (a),
+cons a nil yields (a).
 ```
 
 There are some things to explain here. What is the single quote function? Well, it just indicates that its operand is data, not an expression to be evaluated. In other words, single quote means \`\`literally this.'' And you also see that the value of nil is (), it's a friendlier way to name the empty list. Also, in the last example, _a_ isn't quoted, because initially all atoms evaluate to themselves, are bound to themselves. Except for nil, which has the value (), every atom gives itself as its value initially. This will change if an atom is used as the parameter of a function and is bound to the value of an argument of the function. Numbers though, **always** give themselves as value.
@@ -277,12 +277,12 @@ There are some things to explain here. What is the single quote function? Well, 
 Here are some more examples, this time in M-expression notation. Note that the operations are done from the inside out.
 
 ```
-> car '(1 2 3 4 5) yields 1,
-> car cdr '(1 2 3 4 5) yields 2,
-> car cdr cdr '(1 2 3 4 5) yields 3,
-> car cdr cdr cdr '(1 2 3 4 5) yields 4,
-> car cdr cdr cdr cdr '(1 2 3 4 5) yields 5,
-> cons 1 cons 2 cons 3 cons 4 cons 5 nil yields (1 2 3 4 5).
+car '(1 2 3 4 5) yields 1,
+car cdr '(1 2 3 4 5) yields 2,
+car cdr cdr '(1 2 3 4 5) yields 3,
+car cdr cdr cdr '(1 2 3 4 5) yields 4,
+car cdr cdr cdr cdr '(1 2 3 4 5) yields 5,
+cons 1 cons 2 cons 3 cons 4 cons 5 nil yields (1 2 3 4 5).
 ```
 
 This is how to get the second, third, fourth and fifth elements of a list. These operations are so frequent in LISP that they are usually abbreviated as cadr, caddr, cadddr, caddddr, etc., and so on and so forth with all possible combinations of car and cdr. My LISP though, only provides the first two of these abbreviations, cadr and caddr, for the second and third elements of a list.
@@ -293,7 +293,7 @@ Conditional expressions: `if-then-else`, `atom`, `=`
 Now I'll give a detailed explanation of the three-argument function if-then-else that we used in the definition of factorial.
 
 ```lisp
-> (if predicate then-value else-value)
+(if predicate then-value else-value)
 ```
 
 This is a way to use a logical condition, or predicate, to choose between two alternative values. In other words, it's a way to define a function by cases. If the predicate is true, then the then-value is evaluated, and if the predicate is false, then the else-value is evaluated. The unselected value is **not** evaluated. So if-then-else and single quote are unusual in that they do not evaluate all their arguments. Single quote never evaluates its one argument, and if-then-else only evaluates two of its three arguments. So these are pseudo-functions, they are not really normal functions, even though they are written the same way that normal functions are.
@@ -301,12 +301,12 @@ This is a way to use a logical condition, or predicate, to choose between two al
 And what does one use as a predicate for if-then-else? Well, for numerical work one has the numerical comparison operators <, >, <=, >=, and =. But for work with S-expressions there are just two predicates, _atom_ and =. Atom returns true or false depending upon whether its one argument is an atom or not. = returns true or false depending upon whether two S-expressions are identical or not. Here are some examples written in S-expression notation:
 
 ```
-> (if (= 10 10) abc def) yields abc,
-> (if (= 10 20) abc def) yields def,
-> (if (atom nil) 777 888) yields 777,
-> (if (atom (cons a nil)) 777 888) yields 888,
-> (if (= a a) X Y) yields X,
-> (if (= a b) X Y) yields Y.
+(if (= 10 10) abc def) yields abc,
+(if (= 10 20) abc def) yields def,
+(if (atom nil) 777 888) yields 777,
+(if (atom (cons a nil)) 777 888) yields 888,
+(if (= a a) X Y) yields X,
+(if (= a b) X Y) yields Y.
 ```
 
 Quote, display, eval
@@ -317,10 +317,10 @@ So, to repeat, single quote never evaluates its argument. Single quote indicates
 _Display_, which is useful for obtaining intermediate values in addition to the final value, is just an identity function. Its value is the same as the value of its argument, but it has the side-effect of displaying its argument. Here is an example written in M-expression notation:
 
 ```
-> car display cdr display cdr display cdr '(1 2 3 4 5)
-> displays (2 3 4 5)
-> displays (3 4 5)
-> displays (4 5)
+car display cdr display cdr display cdr '(1 2 3 4 5)
+displays (2 3 4 5)
+displays (3 4 5)
+displays (4 5)
 ```
 and yields value 4.
 
@@ -338,12 +338,12 @@ Length & size
 Here are two ways to measure how big an S-expression is. _Length_ returns the number of elements in a list, i.e., at the top level of an S-expression. And _size_ gives the number of characters in an S-expression when it is written in standard notation, i.e., with exactly one blank separating successive elements of a list. For example, in M-expression notation:
 
 ```
-> length '(a b c)
+length '(a b c)
 ```
 yields 3,
 
 ```
-> size '(a b c)
+size '(a b c)
 ```
 
 yields 7.
@@ -362,37 +362,37 @@ Here is how to define a function.
 For example, here is the function that forms a pair in reverse order.
 
 ```lisp
-> (lambda (x y) (cons y (cons x nil)))
+(lambda (x y) (cons y (cons x nil)))
 ```
 
 Functions can be literally given in place (here I've switched to M-expression notation):
 
 ```
-> ('lambda (x y) cons y cons x nil A B) yields (B A)
+('lambda (x y) cons y cons x nil A B) yields (B A)
 ```
 
 Or, if _f_ is bound to the above function definition, then you can use it like this
 
 ```
-> (f A B) yields (B A)
+(f A B) yields (B A)
 ```
 
 (The general idea is that the function is always evaluated before its arguments are, then the parameters are bound to the argument values, and then the function body is evaluated in this new environment.) How can we bind _f_ to this function definition? Here's a way that's permanent.
 
 ```
-> define (f x y) cons y cons x nil
+define (f x y) cons y cons x nil
 ```
 
 Then _(f A B)_ yields _(B A)_. And here's a way that's local.
 
 ```
-> ('lambda (f) (f A B) 'lambda (x y) cons y cons x nil)
+('lambda (f) (f A B) 'lambda (x y) cons y cons x nil)
 ```
 
 This yields (B A) too. If you can understand this example, then you understand all of my LISP! It's a list with two elements, the expression to be evaluated that uses the function, and the function's definition. Here's factorial done the same way:
 
 ```
-> ('lambda (fact) (fact 4) 'lambda (N) if = display N 0 1 * N (fact - N 1))
+('lambda (fact) (fact 4) 'lambda (N) if = display N 0 1 * N (fact - N 1))
 ```
 
 This displays 4, 3, 2, 1, and 0, and then yields the value 24. Please try to understand this final example, because it **really** shows how my LISP works!
@@ -409,19 +409,28 @@ Let-be-in & define
 
 Local bindings of functions and variables are so common, that we introduce an abbreviation for the lambda expressions that achieve this. To bind a variable to a value we write:
 
-> (let variable \[be\] value \[in\] expression)
+```
+(let variable \[be\] value \[in\] expression)
+```
 
 And to bind a function name to its definition we write it like this.
 
-> (let (function-name parameter1 parameter2...) \[be\] function-body \[in\] expression)
+``
+(let (function-name parameter1 parameter2...) \[be\] function-body \[in\] expression)
+``
 
 For example (and now I've switched to M-expression notation)
 
-> let x 1 let y 2 + x y yields 3.
+```
+let x 1 let y 2 + x y yields 3.
+```
 
 And
 
-> let (fact N) if = N 0 1 \* N (fact - N 1) (fact 4) yields 24.
+```
+let (fact N) if = N 0 1 * N (fact - N 1) (fact 4)
+```
+yields 24.
 
 _Define_ actually has two cases like let-be-in, one for defining variables and another for defining functions:
 
@@ -433,16 +442,20 @@ and
 
 The scope of a define is from the point of definition until the end of the LISP interpreter run, or until a redefinition occurs. For example:
 
-> define x 1
-> define y 2
-> Then + x y yields 3.
+```lisp
+define x 1
+define y 2
+```
 
-> define (fact N) if = N 0 1 \* N (fact - N 1)
-> Then (fact 4) yields 24.
+Then `+ x y` yields 3.
 
-Define can only be used at the \`\`top level.'' You are not allowed to include a define inside a larger S-expression. In other words, define is not really in my LISP. Actually all bindings are local and should be done with let-be-in, i.e., with lambda bindings. Like M-expressions, define and let-be-in are a convenience for the programmer, but they're not officially in my LISP, which only allows lambda expressions and temporary local bindings. Why? **Because in theory each LISP expression is supposed to be totally self-contained, with all the definitions that it needs made locally!** Why? Because that way the size of the smallest expression that has a given value, i.e., the LISP program-size complexity, does not depend on the environment.
+```lisp
+define (fact N) if = N 0 1 * N (fact - N 1)
+```
 
-* * *
+Then `(fact 4)` yields 24.
+
+Define can only be used at the "top level." You are not allowed to include a define inside a larger S-expression. In other words, define is not really in my LISP. Actually all bindings are local and should be done with let-be-in, i.e., with lambda bindings. Like M-expressions, define and let-be-in are a convenience for the programmer, but they're not officially in my LISP, which only allows lambda expressions and temporary local bindings. Why? **Because in theory each LISP expression is supposed to be totally self-contained, with all the definitions that it needs made locally!** Why? Because that way the size of the smallest expression that has a given value, i.e., the LISP program-size complexity, does not depend on the environment.
 
 Manipulating finite sets in LISP
 --------------------------------
@@ -487,7 +500,7 @@ Now please do some exercises. First define the subset predicate, which checks if
 
 The answers to these exercises are in the LISP run in the next section. But don't look until you try to do them yourself!
 
-Once you can do these exercises, we're finally ready to **use** LISP to prove G�del's incompleteness theorem and Turing's theorem that the halting problem cannot be solved! But we'll start [Chapter III](https://web.archive.org/web/20131029222945/http://cs.umaine.edu/~chaitin/unknowable/ch3.html) by seeing how to do a **fixed point** in LISP. That's a LISP expression that yields itself as its value! Can you figure out how to do this before I explain how?
+Once you can do these exercises, we're finally ready to **use** LISP to prove G&#246;del's incompleteness theorem and Turing's theorem that the halting problem cannot be solved! But we'll start Chapter III by seeing how to do a **fixed point** in LISP. That's a LISP expression that yields itself as its value! Can you figure out how to do this before I explain how?
 
 LISP Interpreter Run with the Exercises
 ---------------------------------------
