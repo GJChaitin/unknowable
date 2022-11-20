@@ -1,0 +1,318 @@
+(***** lisp.m: LISP interpreter *****)
+
+(***** INSTRUCTIONS FOR USING THIS LISP INTERPRETER *****
+To run the lisp.m interpreter, first enter Mathematica
+using the command math.  To load the interpreter, enter
+               << lisp.m
+To run a LISP program xyz.l and produce xyz.r, enter
+               run @ "xyz"
+To run several programs, enter
+               run /@ {"xxx","yyy","zzz"}
+To run the eight LISP programs in the course, enter
+               runall
+Type Exit to exit from Mathematica.
+
+Here is how to run the programs that compute the halting
+probability Omega in the limit from below:
+               math
+               << lisp.m
+               run /@ {"omega","omega2"}
+               run @ "omega3"
+               Exit
+
+Reference: Wolfram, Mathematica, 2nd Ed., Addison-Wesley, 1991.
+*****)
+
+getbit[] :=
+Block[ {x},
+ trouble = False; (* Mma bug bypass *)
+ If[ atom@ tape, (trouble = True; Throw@ "out-of-data")];
+ x = car@ tape;
+ tape = cdr@ tape;
+ If[ x === 0, 0, 1 ]
+]
+
+getchar[] := FromCharacterCode[
+  128*getbit[] + 64*getbit[] + 32*getbit[] + 16*getbit[] +
+  8*getbit[] + 4*getbit[] + 2*getbit[] + getbit[]
+]
+
+getrecord[] :=
+Block[ { c, line = "", str },
+ inputbuffer2 = {};
+ While[ "\n" =!= (c = getchar[]),
+ line = line <> c ];
+ If[ trouble, Throw@ "out-of-data"]; (* Mma bug bypass *)
+(* keep only printable ASCII codes *)
+ line = FromCharacterCode@
+ Cases[ ToCharacterCode@ line, n_Integer /; 32 <= n < 127 ];
+ str = StringToStream@ line;
+ inputbuffer2 = ReadList[str, Word, TokenWords->{"(", ")"}];
+ Close@ str;
+(* convert strings of digits to integers *)
+ inputbuffer2 = If[DigitQ@#, ToExpression@#, #]& /@ inputbuffer2 ;
+]
+
+getexp[rparenokay_:False] :=
+Block[ { w, d, l = {} },
+(* supply unlimited number of )'s if tokens run out *)
+ If[ inputbuffer2 == {}, w = ")",
+ w = First@ inputbuffer2;
+ inputbuffer2 = Rest@ inputbuffer2 ];
+ Switch[
+ w,
+ ")", Return@ If[rparenokay,")",{}],
+ "(",
+(While[ ")" =!= (d = getexp[True]),
+ AppendTo[l,d]
+ ];
+ Return@ l
+),
+ _, w
+ ]
+]
+
+atom[x_] :=
+ MatchQ[ x, {}|_String|_Integer ]
+car[x_] :=
+ If[ atom@ x, x, First@ x ]
+cdr[x_] :=
+ If[ atom@ x, x, Rest@ x ]
+cons[x_,y_] :=
+ If[ MatchQ[y,_String|_Integer], x, Prepend[y,x] ]
+
+eval[e2_,a_,d2_] :=
+
+Block[ {e = e2, d = d2, f, args, x, y, z},
+ If[ MatchQ[e,_Integer], Return@ e ];
+ If[ atom@ e, Block[ {names,values,pos},
+   {names,values} = a;
+   pos = Position[names,e,{1}];
+   Return@ If[ pos == {}, e, values[[pos[[1,1]]]] ]
+ ]];
+ f = eval[car@ e,a,d];
+ e = cdr@ e;
+ Switch[
+ f,
+ "'", Return@ car@ e,
+ "if", Return@
+ If[
+ eval[car@ e,a,d] =!= "false",
+ eval[car@cdr@ e,a,d],
+ eval[car@cdr@cdr@ e,a,d]
+ ]
+ ];
+ args = eval[#,a,d]& /@ e;
+ x = car@ args;
+ y = car@cdr@ args;
+ z = car@cdr@cdr@ args;
+ Switch[
+ f,
+ "read-bit", Return@ getbit[],
+ "read-exp", Return@ (getrecord[]; getexp[]),
+ "bits", Return@ Flatten[ ( Rest@ IntegerDigits[256 + #, 2] )& /@
+                            ToCharacterCode[ output@x <> "\n" ] ],
+ "car", Return@ car@ x,
+ "cdr", Return@ cdr@ x,
+ "cons", Return@ cons[x,y],
+ "size", Return@ StringLength@ output@ x,
+ "length", Return@ Length@ x,
+ "+", Return@ (nmb@x + nmb@y),
+ "-", Return@ If[ nmb@x < nmb@y, 0, nmb@x - nmb@y ],
+ "*", Return@ (nmb@x * nmb@y),
+ "^", Return@ (nmb@x ^ nmb@y),
+ "<", Return@ If[nmb@x < nmb@y, "true", "false"],
+ ">", Return@ If[nmb@x > nmb@y, "true", "false"],
+ ">=", Return@ If[nmb@x >= nmb@y, "true", "false"],
+ "<=", Return@ If[nmb@x <= nmb@y, "true", "false"],
+ "base10-to-2", Return@ IntegerDigits[nmb@x, 2],
+ "base2-to-10", Return@ Fold[ (2 #1 + If[#2===0,0,1])&, 0, x ],
+ "append", Return@ Join[ If[atom@x,{},x], If[atom@y,{},y] ],
+ "atom", Return@ If[ atom@ x, "true", "false" ],
+ "=", Return@ If[ x === y, "true", "false" ],
+ "display", Return@ (AppendTo[out,x];
+               If[ display, print[ "display", output@ x ] ];
+               x),
+ "debug", Return@ (print[ "debug", output@ x ];
+               x)
+ ];
+ If[ d == 0, Throw@ "out-of-time" ];
+ d--;
+ Switch[
+ f,
+ "eval", Return@ eval[x,Null,d],
+ "try", Return@
+ Block[ {out = {}, tape = z, display = False, xx},
+ If[ x === "no-time-limit", xx = Infinity, xx = nmb@ x ];
+ If[ xx < d,
+ Catch@ {"success",eval[y,Null,xx],out} //
+ If[ # === "out-of-time", {"failure",#,out}, # ] & ,
+ Catch@ {"success",eval[y,Null,d],out} //
+ If[ # === "out-of-time", Throw@ #, # ] &
+ ] //
+ If[ # === "out-of-data", {"failure",#,out}, # ] & ] (* end block *)
+ ]; (* end switch *)
+ f = cdr@ f;
+ eval[ car@cdr@ f, bind[car@ f,args,a], d ]
+]
+
+nmb[n_Integer] := n
+nmb[_] := 0
+
+bind[vars_?atom,args_,a_] :=
+ a
+
+bind[vars_,args_,a_] :=
+Block[ {names,values,pos},
+ {names,values} = bind[ cdr@ vars, cdr@ args, a ];
+ pos = Position[names, car@ vars, {1}];
+ {Prepend[Delete[names,pos], car@ vars],
+  Prepend[Delete[values,pos], car@ args]}
+]
+
+eval[e_] :=
+(
+ out = tape = {};
+ display = True;
+ print[ "expression", output@ e ];
+ Catch[ eval[ e, {names,defs}, Infinity ] ]
+)
+
+eval[e_,Null,d_] := eval[e,{{"nil"},{{}}},d]
+
+run[fn_] := run[fn, "lisp.m", ".r"]
+
+word2[]:=
+Block[ {w,line,str},
+While[
+ inputbuffer == {},
+ line = Read[i,Record];
+ If[ line == EndOfFile, Abort[] ];
+ Print@ line;
+ WriteString[o,line,"\n"];
+ (* keep only printable ASCII codes *)
+ line = FromCharacterCode@
+ Cases[ ToCharacterCode@ line, n_Integer /; 32 <= n < 127 ];
+ str = StringToStream@ line;
+ inputbuffer = ReadList[str, Word,
+                        TokenWords->{"(", ")", "[", "]", "'", "\""}];
+ Close@ str
+];
+w = First@ inputbuffer;
+inputbuffer = Rest@ inputbuffer;
+If[DigitQ@w, ToExpression@w, w]  (* convert string of digits to integer *)
+]
+
+word[] :=
+Block[ {w},
+While[ True,
+ w = word2[];
+ If[ w =!= "[", Return@ w ];
+ While[ word[] =!= "]" ]
+]
+]
+
+get[sexp_:False,rparenokay_:False] :=
+
+Block[ {w = word[], d, l ={}, name, def, body, varlist},
+ Switch[
+ w,
+ ")", Return@ If[rparenokay,")",{}],
+ "(",
+ While[ ")" =!= (d = get[sexp,True]),
+ AppendTo[l,d]
+ ];
+ Return@ l
+ ];
+ If[ sexp, Return@ w ];
+ Switch[
+ w,
+ "\"", get[True],
+ "cadr",
+ {"car",{"cdr",get[]}},
+ "caddr",
+ {"car",{"cdr",{"cdr",get[]}}},
+ "let",
+ {name,def,body} = {get[],get[],get[]};
+ If[
+ !MatchQ[name,{}|_String|_Integer],
+ varlist = Rest@ name;
+ name = First@ name;
+ def = {"'",{"lambda",varlist,def}}
+ ];
+ {{"'",{"lambda",{name},body}},def},
+ "read-bit"|"read-exp",
+                   {w},
+ "car"|"cdr"|"atom"|"'"|"display"|"eval"|"bits"|"debug"|
+ "length"|"size"|"base2-to-10"|"base10-to-2",
+                   {w,get[]},
+ "cons"|"="|"lambda"|"append"|"define"|"+"|"-"|"*"|"^"|"<"|">"|"<="|">=",
+                   {w,get[],get[]},
+ "if"|"let"|"try", {w,get[],get[],get[]},
+ _, w
+ ]
+]
+
+(* output S-exp *)
+output2[x_String] := x<>" "
+output2[x_Integer] := ToString[x]<>" "
+output2[{x___}] :=
+Block[ {s},
+ s = StringJoin["(", output2 /@ {x}];
+ If[ StringTake[s,-1] == " ", s = StringDrop[s,-1] ];
+ s <> ") "
+]
+output[x_] := StringDrop[ output2@x ,-1 ]
+
+blanks = StringJoin@ Table[" ",{12}]
+
+print[x_,y_] := (print2[x,StringTake[y,50]];
+ print["",StringDrop[y,50]]) /; StringLength[y] > 50
+print[x_,y_] := print2[x,y]
+print2[x_,y_] := print3[StringTake[x<>blanks,12]<>y]
+print3[x_] := (Print[x]; WriteString[o,x,"\n"])
+
+let[n_,d_] :=
+(
+ print[ "define", output@ n ];
+ print[ "value", output@ d ];
+ PrependTo[names,n];
+ PrependTo[defs,d];
+)
+
+run[fn_,whoami_,outputsuffix_] :=
+(
+ inputbuffer = {};
+ names = {"nil"}; defs = {{}};
+ t0 = SessionTime[];
+ o = OpenWrite[fn<>outputsuffix];
+ i = OpenRead[fn<>".l"];
+ print3["LISP Interpreter Run"];
+ print3@ "";
+ CheckAbort[
+ While[True,
+(print3@ "";
+ Replace[#,{
+ {"define",{func_,vars___},def_} :> let[func,{"lambda",{vars},def}],
+ {"define",var_,def_} :> let[var,def],
+ _ :> print[ "value", output@ eval@ # ]
+ }]
+)& @ get[];
+ print3@ ""
+ ],Null
+ ];
+ print3@ "End of LISP Run";
+ print3@ "";
+ print3@ StringForm[
+ "Elapsed time is `` seconds.",
+ Round[SessionTime[]-t0]
+ ];
+ Close@ i;
+ Close@ o
+)
+
+runall := run /@ {"examples","godel","utm","godel2",
+                 "omega","omega2","omega3","godel3"}
+
+$RecursionLimit = $IterationLimit = Infinity
+SetOptions[$Output,PageWidth->Infinity];
