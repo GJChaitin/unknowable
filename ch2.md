@@ -56,18 +56,18 @@ The first step to convert this to LISP is to put in **all** the parentheses:
 And the next step to convert this to LISP is to put the operators before the operands (prefix notation), rather than in the middle (infix notation):
 
 ```lisp
-> (+(*34)(*56))
+(+(*34)(*56))
 ```
 
 And now we need to use blanks to separate the elements of a list if parentheses don't do that for us. So the final result is:
 
-```
+```lisp
 (+(* 3 4)(* 5 6))
 ```
 
 which is already understandable, or
 
-```
+```lisp
 (+ (* 3 4) (* 5 6))
 ```
 
@@ -173,13 +173,13 @@ is the same as `(- 7 10)`,
 
 is the same as `(+ (* 3 4) (* 5 6))`,
 
-```
+```lisp
 ^ 2 10
 ```
 
 is the same as `(^ 2 10)`,
 
-```
+```lisp
 < * 10 10 101
 ```
 is the same as `(< (* 10 10) 101)`,
@@ -193,9 +193,9 @@ If you look at these examples you can convince yourself that there is never any 
 
 There are circumstances in which one wants to give parentheses explicitly rather than implicitly. So I use the notation " within an M-expression to indicate that what follows is an S-expression. Here are three examples:
 
-> The M-expression `"(+ + +)` denotes the S-expression `(+ + +)`.
-> The M-expression `("+ "- "*)` denotes the S-expression `(+ - *)`.
-> The M-expression `+ "* "^` denotes the S-expression `(+ * ^)`.
+* The M-expression `"(+ + +)` denotes the S-expression `(+ + +)`.
+* The M-expression `("+ "- "*)` denotes the S-expression `(+ - *)`.
+* The M-expression `+ "* "^` denotes the S-expression `(+ * ^)`.
 
 If one didn't use the double quotes, these arithmetic operators would have to have operands, but here they are just used as symbols. But these are not useful S-expressions, because they are not valid arithmetical expressions.
 
@@ -204,13 +204,17 @@ Recursive definitions & factorial
 
 Now let me jump ahead and give the traditional first example of a complete LISP program. Later I'll explain everything in more detail. So here is how you define factorial in LISP. What's factorial? Well, the factorial of _N_, usually denoted _N_!, is the product of all natural numbers from 1 to _N_. So how do we do this in LISP? Well, we define factorial recursively:
 
-> (define (fact N) (if (= N 0) \[then\] 1 \[else\] (\* N (fact (- N 1)))))
+```lisp
+(define (fact N) (if (= N 0) [then] 1 [else] (\* N (fact (- N 1)))))
+```
 
 Here comments are enclosed in square brackets. This is the definition in the official S-expression notation. Here the definition is written in the more convenient M-expression notation.
 
-> define (fact N)
-> if = N 0 \[then\] 1
-> \[else\] \* N (fact - N 1)
+```lisp
+define (fact N)
+  if = N 0 [then] 1
+  [else] * N (fact - N 1)
+```
 
 This can be interpreted unambiguously if you know that "define" always has two operands, and "if" always has three.
 
@@ -309,7 +313,7 @@ So, to repeat, single quote never evaluates its argument. Single quote indicates
 
 _Display_, which is useful for obtaining intermediate values in addition to the final value, is just an identity function. Its value is the same as the value of its argument, but it has the side-effect of displaying its argument. Here is an example written in M-expression notation:
 
-```
+```lisp
 car display cdr display cdr display cdr '(1 2 3 4 5)
 displays (2 3 4 5)
 displays (3 4 5)
@@ -328,12 +332,12 @@ Length & size
 
 Here are two ways to measure how big an S-expression is. _Length_ returns the number of elements in a list, i.e., at the top level of an S-expression. And _size_ gives the number of characters in an S-expression when it is written in standard notation, i.e., with exactly one blank separating successive elements of a list. For example, in M-expression notation:
 
-```
+```lisp
 length '(a b c)
 ```
 yields 3,
 
-```
+```lisp
 size '(a b c)
 ```
 
@@ -347,7 +351,7 @@ Lambda expressions
 Here is how to define a function.
 
 ```lisp
-> (lambda (list-of-parameter-names) function-body)
+(lambda (list-of-parameter-names) function-body)
 ```
 
 For example, here is the function that forms a pair in reverse order.
@@ -358,7 +362,7 @@ For example, here is the function that forms a pair in reverse order.
 
 Functions can be literally given in place (here I've switched to M-expression notation):
 
-```
+```lisp
 ('lambda (x y) cons y cons x nil A B) yields (B A)
 ```
 
@@ -370,19 +374,19 @@ Or, if _f_ is bound to the above function definition, then you can use it like t
 
 (The general idea is that the function is always evaluated before its arguments are, then the parameters are bound to the argument values, and then the function body is evaluated in this new environment.) How can we bind _f_ to this function definition? Here's a way that's permanent.
 
-```
+```lisp
 define (f x y) cons y cons x nil
 ```
 
 Then _(f A B)_ yields _(B A)_. And here's a way that's local.
 
-```
+```lisp
 ('lambda (f) (f A B) 'lambda (x y) cons y cons x nil)
 ```
 
 This yields (B A) too. If you can understand this example, then you understand all of my LISP! It's a list with two elements, the expression to be evaluated that uses the function, and the function's definition. Here's factorial done the same way:
 
-```
+```lisp
 ('lambda (fact) (fact 4) 'lambda (N) if = display N 0 1 * N (fact - N 1))
 ```
 
@@ -400,36 +404,40 @@ Let-be-in & define
 
 Local bindings of functions and variables are so common, that we introduce an abbreviation for the lambda expressions that achieve this. To bind a variable to a value we write:
 
-```
-(let variable \[be\] value \[in\] expression)
+```lisp
+(let variable [be] value [in] expression)
 ```
 
 And to bind a function name to its definition we write it like this.
 
 ``
-(let (function-name parameter1 parameter2...) \[be\] function-body \[in\] expression)
+(let (function-name parameter1 parameter2...) [be] function-body [in] expression)
 ``
 
 For example (and now I've switched to M-expression notation)
 
-```
+```lisp
 let x 1 let y 2 + x y yields 3.
 ```
 
 And
 
-```
+```lisp
 let (fact N) if = N 0 1 * N (fact - N 1) (fact 4)
 ```
 yields 24.
 
 _Define_ actually has two cases like let-be-in, one for defining variables and another for defining functions:
 
-> (define variable \[to be\] value)
+```lisp
+(define variable [to be] value)
+```
 
 and
 
-> (define (function-name parameter1 parameter2...) \[to be\] function-body)
+```lisp
+(define (function-name parameter1 parameter2...) [to be] function-body)
+```
 
 The scope of a define is from the point of definition until the end of the LISP interpreter run, or until a redefinition occurs. For example:
 
@@ -457,19 +465,21 @@ To illustrate all this, let me show you how to manipulate finite sets�sets, no
 
 First let's see how to define the set membership predicate in LISP. This function, called _member?_, has two arguments, an S-expression and a set of S-expressions. It returns true if the S-expression is in the set, and false otherwise. It calls itself again and again, and each time the set, s, is smaller.
 
-> define (member? e s) \[is e in s?\]
-> if atom s false \[if s is empty, then e isn't in s\]
-> if = e car s true \[if e is the first element of s, then it's in s\]
-> (member? e cdr s) \[otherwise, look if e is in the rest of s\]
->
-> Then (member? 2 '(1 2 3)) yields true.
-> And (member? 4 '(1 2 3)) yields false.
+```lisp
+define (member? e s) [is e in s?]
+if atom s false [if s is empty, then e isn't in s]
+if = e car s true [if e is the first element of s, then it's in s]
+(member? e cdr s) [otherwise, look if e is in the rest of s]
+```
+
+Then `(member? 2 '(1 2 3))` yields _true_.
+And `(member? 4 '(1 2 3))` yields _false_.
 
 Let me state this in English. Membership of _e_ in _s_ is defined as follows. First of all, if _s_ is empty, then _e_ is not a member of _s_. Second, if _e_ is the first element of _s_, then _e_ is a member of _s_. Third, if _e_ is not the first element of _s_, then _e_ is a member of _s_ iff _e_ is a member of the rest of _s_.
 
 Now here's the intersection of two sets, i.e., the set of all the elements that they have in common, that are in **both** sets.
 
-```
+```lisp
 define (intersection s t) [elements that two sets have in common]
 if atom s nil [if the first set is empty, so is the intersection]
 if (member? car s t) [is the first element of s in t?]
@@ -503,21 +513,21 @@ LISP Interpreter Run with the Exercises
 LISP Interpreter Run
 
 ```
-\[\[\[\[\[
+[[[[[
 
  Elementary Set Theory in LISP (finite sets)
 
-\]\]\]\]\]
+]]]]]
 
-\[Set membership predicate:\]
+[Set membership predicate:]
 
-define (member? e\[lement\] set)
-   \[Is set empty?\]
-   if atom set \[then\] false \[else\]
-   \[Is the element that we are looking for the first element?\]
-   if = e car set \[then\] true \[else\]
-   \[recursion step!\]
-   \[return\] (member? e cdr set)
+define (member? e[lement] set)
+   [Is set empty?]
+   if atom set [then] false [else]
+   [Is the element that we are looking for the first element?]
+   if = e car set [then] true [else]
+   [recursion step!]
+   [return] (member? e cdr set)
 
 define      member?
 value       (lambda (e set) (if (atom set) false (if (= e (car
@@ -535,15 +545,15 @@ expression  (member? 4 (' (1 2 3)))
 value       false
 
 
-\[Subset predicate:\]
+[Subset predicate:]
 
 define (subset? set1 set2)
-   \[Is the first set empty?\]
-   if atom set1 \[then\] true \[else\]
-   \[Is the first element of the first set in the second set?\]
+   [Is the first set empty?]
+   if atom set1 [then] true [else]
+   [Is the first element of the first set in the second set?]
    if (member? car set1 set2)
-      \[then\] \[recursion!\] (subset? cdr set1 set2)
-      \[else\] false
+      [then] [recursion!] (subset? cdr set1 set2)
+      [else] false
 
 define      subset?
 value       (lambda (set1 set2) (if (atom set1) true (if (memb
@@ -562,15 +572,15 @@ expression  (subset? (' (1 4)) (' (1 2 3)))
 value       false
 
 
-\[Set union:\]
+[Set union:]
 
 define (union x y)
-   \[Is the first set empty?\]
-   if atom x \[then\] \[return\] y \[else\]
-   \[Is the first element of the first set in the second set?\]
+   [Is the first set empty?]
+   if atom x [then] [return] y [else]
+   [Is the first element of the first set in the second set?]
    if (member? car x y)
-      \[then\] \[return\] (union cdr x y)
-      \[else\] \[return\] cons car x (union cdr x y)
+      [then] [return] (union cdr x y)
+      [else] [return] cons car x (union cdr x y)
 
 define      union
 value       (lambda (x y) (if (atom x) y (if (member? (car x)
@@ -584,7 +594,7 @@ expression  (union (' (1 2 3)) (' (2 3 4)))
 value       (1 2 3 4)
 
 
-\[Union of a list of sets:\]
+[Union of a list of sets:]
 
 define (unionl l) if atom l nil (union car l (unionl cdr l))
 
@@ -599,15 +609,15 @@ expression  (unionl (' ((1 2) (2 3) (3 4))))
 value       (1 2 3 4)
 
 
-\[Set intersection:\]
+[Set intersection:]
 
 define (intersection x y)
-   \[Is the first set empty?\]
-   if atom x \[then\] \[return\] nil \[empty set\] \[else\]
-   \[Is the first element of the first set in the second set?\]
+   [Is the first set empty?]
+   if atom x [then] [return] nil [empty set] [else]
+   [Is the first element of the first set in the second set?]
    if (member? car x y)
-      \[then\] \[return\] cons car x (intersection cdr x y)
-      \[else\] \[return\] (intersection cdr x y)
+      [then] [return] cons car x (intersection cdr x y)
+      [else] [return] (intersection cdr x y)
 
 define      intersection
 value       (lambda (x y) (if (atom x) nil (if (member? (car x
@@ -621,15 +631,15 @@ expression  (intersection (' (1 2 3)) (' (2 3 4)))
 value       (2 3)
 
 
-\[Relative complement of two sets x and y = x - y:\]
+[Relative complement of two sets x and y = x - y:]
 
 define (complement x y)
-   \[Is the first set empty?\]
-   if atom x \[then\] \[return\] nil \[empty set\] \[else\]
-   \[Is the first element of the first set in the second set?\]
+   [Is the first set empty?]
+   if atom x [then] [return] nil [empty set] [else]
+   [Is the first element of the first set in the second set?]
    if (member? car x y)
-      \[then\] \[return\] (complement cdr x y)
-      \[else\] \[return\] cons car x (complement cdr x y)
+      [then] [return] (complement cdr x y)
+      [else] [return] cons car x (complement cdr x y)
 
 define      complement
 value       (lambda (x y) (if (atom x) nil (if (member? (car x
@@ -644,12 +654,12 @@ value       (1)
 
 
 
-\[Cartesian product of an element with a list:\]
+[Cartesian product of an element with a list:]
 
 define (product1 e y)
    if atom y
-      \[then\] nil
-      \[else\] cons cons e cons car y nil (product1 e cdr y)
+      [then] nil
+      [else] cons cons e cons car y nil (product1 e cdr y)
 
 define      product1
 value       (lambda (e y) (if (atom y) nil (cons (cons e (cons
@@ -662,12 +672,12 @@ expression  (product1 3 (' (4 5 6)))
 value       ((3 4) (3 5) (3 6))
 
 
-\[Cartesian product of two sets = set of ordered pairs:\]
+[Cartesian product of two sets = set of ordered pairs:]
 
 define (product x y)
-   \[Is the first set empty?\]
-   if atom x \[then\] \[return\] nil \[empty set\] \[else\]
-   \[return\] (union (product1 car x y) (product cdr x y))
+   [Is the first set empty?]
+   if atom x [then] [return] nil [empty set] [else]
+   [return] (union (product1 car x y) (product cdr x y))
 
 define      product
 value       (lambda (x y) (if (atom x) nil (union (product1 (c
@@ -681,12 +691,12 @@ value       ((1 x) (1 y) (1 z) (2 x) (2 y) (2 z) (3 x) (3 y) (
             3 z))
 
 
-\[Product of an element with a list of sets:\]
+[Product of an element with a list of sets:]
 
 define (product2 e y)
    if atom y
-      \[then\] nil
-      \[else\] cons cons e car y (product2 e cdr y)
+      [then] nil
+      [else] cons cons e car y (product2 e cdr y)
 
 define      product2
 value       (lambda (e y) (if (atom y) nil (cons (cons e (car
@@ -699,12 +709,12 @@ expression  (product2 3 (' ((4 5) (5 6) (6 7))))
 value       ((3 4 5) (3 5 6) (3 6 7))
 
 
-\[Set of all subsets of a given set:\]
+[Set of all subsets of a given set:]
 
 define (subsets x)
    if atom x
-      \[then\] '(()) \[else\]
-      let y \[be\] (subsets cdr x) \[in\]
+      [then] '(()) [else]
+      let y [be] (subsets cdr x) [in]
       (union y (product2 car x y))
 
 define      subsets
