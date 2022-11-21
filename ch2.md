@@ -120,7 +120,7 @@ yields 3,
 yields 0,
 
 ```lisp
-(+ (\* 3 4) (\* 5 6))
+(+ (* 3 4) (* 5 6))
 ```
 is the same as `(+ 12 30)` which yields 42,
 
@@ -130,7 +130,7 @@ is the same as `(+ 12 30)` which yields 42,
 yields 1024,
 
 ```lisp
-(< (\* 10 10) 101)
+(< (* 10 10) 101)
 ```
 is the same as `(< 100 101)` which yields _true_,
 
@@ -221,14 +221,14 @@ The factorial function has one argument, _N_, and is defined as follows. If _N_ 
 So using this definition, we see that (fact 4) is the same as
 
 ```lisp
-(\* 4 (fact 3))
-(\* 4 (\* 3 (fact 2)))
-(\* 4 (\* 3 (\* 2 (fact 1))))
-(\* 4 (\* 3 (\* 2 (\* 1 (fact 0)))))
-(\* 4 (\* 3 (\* 2 (\* 1 1))))
-(\* 4 (\* 3 (\* 2 1)))
-(\* 4 (\* 3 2))
-(\* 4 6)
+(* 4 (fact 3))
+(* 4 (* 3 (fact 2)))
+(* 4 (* 3 (* 2 (fact 1))))
+(* 4 (* 3 (* 2 (* 1 (fact 0)))))
+(* 4 (* 3 (* 2 (* 1 1))))
+(* 4 (* 3 (* 2 1)))
+(* 4 (* 3 2))
+(* 4 6)
 ```
 
 which yields 24.
@@ -236,54 +236,49 @@ which yields 24.
 So in LISP you define functions instead of indicating how to calculate them. The LISP interpreter's job is to figure out how to calculate them using their definitions. And instead of loops, in LISP you use recursive function definitions. In other words, the function that you are defining recurs in its own definition. The general idea is to reduce a complicated case of the function to a simpler case, etc., etc., until you get to cases where the answer is obvious.
 
 Manipulating lists: `car`, `cdr`, `cons`
-----------------------------------
+----------------------------------------
 
 The examples I've given so far are all numerical arithmetic. But LISP is actually intended for symbolic processing. It's actually an arithmetic for lists, for breaking apart and putting together lists of things. So let me show you some list expressions instead of numerical expressions.
 
 _Car_ and _cdr_ are the funny names of the operations for breaking a list into pieces. These names were chosen for historical reasons, and no longer make any sense, but everyone knows them. If one could start over you'd call car, head or first and you'd call cdr, tail or rest. Car returns the first element of a list, and cdr returns what's left without the first element. And _cons_ is the inverse operation, it joins a head to a tail, it adds an element to the beginning of a list. Here are some examples, written in S-expression notation:
 
-```
-(car (' (a b c))) yields a,
-(cdr (' (a b c))) yields (b c),
-(car (' ((a) (b) (c)))) yields (a),
-(cdr (' ((a) (b) (c)))) yields ((b) (c)),
-(car (' (a))) yields a,
-(cdr (' (a))) yields (),
-(cons (' a) (' (b c))) yields (a b c),
-(cons (' (a)) (' ((b) (c)))) yields ((a) (b) (c)),
-(cons (' a) (' ())) yields (a),
-(cons (' a) nil) yields (a),
-(cons a nil) yields (a).
-```
+* `(car (' (a b c)))` yields `a`,
+* `(cdr (' (a b c)))` yields `(b c)`,
+* `(car (' ((a) (b) (c))))` yields `(a)`,
+* `(cdr (' ((a) (b) (c))))` yields `((b) (c))`,
+* `(car (' (a)))` yields `a`,
+* `(cdr (' (a)))` yields `()`,
+* `(cons (' a) (' (b c)))` yields `(a b c)`,
+* `(cons (' (a)) (' ((b) (c))))` yields `((a) (b) (c))`,
+* `(cons (' a) (' ()))` yields `(a)`,
+* `(cons (' a) nil)` yields `(a)`,
+* `(cons a nil)` yields `(a)`.
+
 
 Maybe these are easier to understand in M-expression notation:
 
-```
-car '(a b c) yields a,
-cdr '(a b c) yields (b c),
-car '((a) (b) (c)) yields (a),
-cdr '((a) (b) (c)) yields ((b) (c)),
-car '(a) yields a,
-cdr '(a) yields (),
-cons 'a '(b c) yields (a b c),
-cons '(a) '((b) (c)) yields ((a) (b) (c)),
-cons 'a '() yields (a),
-cons 'a nil yields (a),
-cons a nil yields (a).
-```
+* `car '(a b c)` yields `a`,
+* `cdr '(a b c) yields` `(b c)`,
+* `car '((a) (b) (c))` yields `(a)`,
+* `cdr '((a) (b) (c))` yields `((b) (c))`,
+* `car '(a)` yields `a`,
+* `cdr '(a)` yields `()`,
+* `cons 'a '(b c)` yields `(a b c)`,
+* `cons '(a) '((b) (c))` yields `((a) (b) (c))`,
+* `cons 'a '()` yields `(a)`,
+* `cons 'a nil` yields `(a)`,
+* `cons a nil` yields `(a)`.
 
 There are some things to explain here. What is the single quote function? Well, it just indicates that its operand is data, not an expression to be evaluated. In other words, single quote means \`\`literally this.'' And you also see that the value of nil is (), it's a friendlier way to name the empty list. Also, in the last example, _a_ isn't quoted, because initially all atoms evaluate to themselves, are bound to themselves. Except for nil, which has the value (), every atom gives itself as its value initially. This will change if an atom is used as the parameter of a function and is bound to the value of an argument of the function. Numbers though, **always** give themselves as value.
 
 Here are some more examples, this time in M-expression notation. Note that the operations are done from the inside out.
 
-```
-car '(1 2 3 4 5) yields 1,
-car cdr '(1 2 3 4 5) yields 2,
-car cdr cdr '(1 2 3 4 5) yields 3,
-car cdr cdr cdr '(1 2 3 4 5) yields 4,
-car cdr cdr cdr cdr '(1 2 3 4 5) yields 5,
-cons 1 cons 2 cons 3 cons 4 cons 5 nil yields (1 2 3 4 5).
-```
+* `car '(1 2 3 4 5)` yields 1,
+* `car cdr '(1 2 3 4 5)` yields 2,
+* `car cdr cdr '(1 2 3 4 5)` yields 3,
+* `car cdr cdr cdr '(1 2 3 4 5)` yields 4,
+* `car cdr cdr cdr cdr '(1 2 3 4 5)` yields 5,
+* `cons 1 cons 2 cons 3 cons 4 cons 5 nil` yields (1 2 3 4 5).
 
 This is how to get the second, third, fourth and fifth elements of a list. These operations are so frequent in LISP that they are usually abbreviated as cadr, caddr, cadddr, caddddr, etc., and so on and so forth with all possible combinations of car and cdr. My LISP though, only provides the first two of these abbreviations, cadr and caddr, for the second and third elements of a list.
 
@@ -300,14 +295,12 @@ This is a way to use a logical condition, or predicate, to choose between two al
 
 And what does one use as a predicate for if-then-else? Well, for numerical work one has the numerical comparison operators <, >, <=, >=, and =. But for work with S-expressions there are just two predicates, _atom_ and =. Atom returns true or false depending upon whether its one argument is an atom or not. = returns true or false depending upon whether two S-expressions are identical or not. Here are some examples written in S-expression notation:
 
-```
-(if (= 10 10) abc def) yields abc,
-(if (= 10 20) abc def) yields def,
-(if (atom nil) 777 888) yields 777,
-(if (atom (cons a nil)) 777 888) yields 888,
-(if (= a a) X Y) yields X,
-(if (= a b) X Y) yields Y.
-```
+* `(if (= 10 10) abc def)` yields `abc`,
+* `(if (= 10 20) abc def)` yields `def`,
+* `(if (atom nil) 777 888)` yields 777,
+* `(if (atom (cons a nil)) 777 888)` yields 888,
+* `(if (= a a) X Y)` yields X,
+* `(if (= a b) X Y)` yields Y.
 
 Quote, display, eval
 --------------------
@@ -326,9 +319,7 @@ and yields value 4.
 
 _Eval_ provides a way of doing a **stand-alone** evaluation of an expression that one has constructed. For example:
 
-> eval display cons "^ cons 2 cons 10 nil
-> displays (^ 2 10)
-> and yields value 1024.
+`eval display cons "^ cons 2 cons 10 nil` displays `(^ 2 10)` and yields value 1024.
 
 This works because LISP is interpreted, not compiled. Instead of translating a LISP expression into machine language and then running it, the LISP interpreter is always present doing evaluations and printing results. It is very important that the argument of eval is always evaluated in a clean, initial environment, not in the current environment. I.e., the only binding in effect will be that nil is bound to (). All other atoms are bound to themselves. In other words, the expression being evaled must be self-contained. This is important because in this way the result of an eval doesn't depend on the circumstances when it is used. It always gives the same value if it is given the same argument.
 
@@ -478,23 +469,27 @@ Let me state this in English. Membership of _e_ in _s_ is defined as follows. Fi
 
 Now here's the intersection of two sets, i.e., the set of all the elements that they have in common, that are in **both** sets.
 
-> define (intersection s t) \[elements that two sets have in common\]
-> if atom s nil \[if the first set is empty, so is the intersection\]
-> if (member? car s t) \[is the first element of s in t?\]
-> \[if so\] cons car s (intersection cdr s t)
-> \[if not\] (intersection cdr s t)
->
-> Then (intersection '(1 2 3) '(2 3 4)) yields (2 3).
+```
+define (intersection s t) [elements that two sets have in common]
+if atom s nil [if the first set is empty, so is the intersection]
+if (member? car s t) [is the first element of s in t?]
+[if so] cons car s (intersection cdr s t)
+[if not] (intersection cdr s t)
+```
+
+Then `(intersection '(1 2 3) '(2 3 4))` yields (2 3).
 
 Here's the dual of intersection, the union of two sets, i.e., the set of all the elements that are in **either** set.
 
-> define (union s t) \[elements in either of two sets\]
-> if atom s t \[if the first set is empty, then the union is the second set\]
-> if (member? car s t) \[is the first element of s in t?\]
-> \[if so\] (union cdr s t)
-> \[if not\] cons car s (union cdr s t)
->
-> Then (union '(1 2 3) '(2 3 4)) yields (1 2 3 4).
+```lisp
+define (union s t) [elements in either of two sets]
+if atom s t [if the first set is empty, then the union is the second set]
+if (member? car s t) [is the first element of s in t?]
+[if so] (union cdr s t)
+[if not] cons car s (union cdr s t)
+```
+
+Then `(union '(1 2 3) '(2 3 4))` yields (1 2 3 4).
 
 Now please do some exercises. First define the subset predicate, which checks if one set is contained in another. Then define the relative complement of one set _s_ minus a second set _t_. That's the set of all the elements of _s_ that are not in _t_. Then define _unionl_ which is the union of a list of sets. Then define the cartesian product of two sets. That's the set of all ordered pairs in which the first element is from the first set and the second element is from the second set. Finally, define the set of all subsets of a given set. If a set has _N_ elements, then the set of all its subsets will have 2_N_ elements.
 
