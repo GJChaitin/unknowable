@@ -13,7 +13,7 @@ All of the the above, books and software, are written by Gregory J. Chaitin.
 The above material all comes Archive.org:
 
 * [The UNKNOWABLE](https://web.archive.org/web/20060924160850/http://www.cs.auckland.ac.nz/CDMTCS/chaitin/unknowable/)
-* [The UKNOWABLE Chapter 2 alternate location](https://www.cs.auckland.ac.nz/CDMTCS/chaitin/unknowable) and for portions of "The Limits of Mathematics".
+* [The UKNOWABLE Chapter 2 alternate location](https://www.cs.auckland.ac.nz/CDMTCS/chaitin/unknowable) and for portions of "The Limits of Mathematics" (2003).
 
 Links to the code can be found off of the latter site.
 
