@@ -5,12 +5,18 @@
 	run-godel \
 	run-sets
 
+ALL=lisp lisp.class
+
 #: Build everything
-all: lisp
+all: $(ALL)
 
 #: Build C LISP interpreter
 lisp: lisp.c
 	cc -O -olisp lisp.c
+
+#: Build Java LISP interpreter
+lisp.class: lisp.java
+	javac lisp.java
 
 #: Run fixedpoint LISP example through the LISP interpreter
 run-fixedpoint: lisp fixedpoint.l
@@ -26,4 +32,4 @@ run-sets: lisp sets.l
 
 #: Clean programs
 clean:
-	@rm lisp
+	@rm $(ALL) 2>/dev/null || true
