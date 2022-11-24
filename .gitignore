@@ -1,4 +1,6 @@
-/.gitignore~
+*~
 /.python-version
+/Sexp.class
 /lisp
+/lisp.class
 /tmp

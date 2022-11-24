@@ -2,6 +2,9 @@
 
 ## JDK1.1.2 VERSION
 
+[This was taken from Archive.org: README.html and converted to Markdown - rocky]
+
+
 [This Java applet version of my LISP is identical with the ``official'' C and Mathematica versions, except that it allows several M-exps per line, and in its normal non-echo mode M-exp input is not interspersed with the S-exp output. It will run all the LISP code in Exploring RANDOMNESS, The Unknowable and The Limits of Mathematics. Just cut and paste entire LISP .l source code files into the upper window, the M-exp input area, and click on run. The output will appear in the bottom window.]
 
 For a tutorial on this LISP, see this chapter of The Unknowable, or this chapter of Exploring RANDOMNESS. For a summary, see below. For the Java code for the interpreter, click here and here.

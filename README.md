@@ -1,4 +1,4 @@
-Here we have:
+In this branch Here we have:
 
 * LISP interpreters in
   - [C](https://github.com/GJChaitin/unknowable/blob/master/lisp.c),
@@ -10,6 +10,9 @@ Here we have:
 
 All of the the above, books and software, are written by Gregory J. Chaitin.
 
+This branch strives to contain code as it was originally written circa 1999-2000. Much of it might now work in modern environments.
+For modern code, see the "master" branch.
+
 The above material all comes Archive.org:
 
 * [The UNKNOWABLE](https://web.archive.org/web/20060924160850/http://www.cs.auckland.ac.nz/CDMTCS/chaitin/unknowable/)
@@ -17,18 +20,4 @@ The above material all comes Archive.org:
 
 Links to the code can be found off of the latter site.
 
-File extensions ending in `.l` are LISPx programs; extensions ending in `.r` is output from running the program through the LISP interpreter.
-
-I have written a small Makefile to facilitate compiling and running the code. If you have [`remake`](https://remake.readthedocs.io/en/latest/) installed, you can get a list of targets by running:
-`remake --tasks`:
-
-```
-$ remake --tasks
-all                  Build everything
-clean                Clean programs
-lisp                 Build C LISP interpreter
-run-fixedpoint       Run fixedpoint LISP example through the LISP interpreter
-...
-```
-
-(The above list is an example, it is abbreviated and probably out of date.)
+File extensions ending in `.l` are LISP programs; extensions ending in `.r` is output from running the program through the LISP interpreter.
