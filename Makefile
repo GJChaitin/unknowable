@@ -7,12 +7,18 @@
 
 ALL=lisp lisp.class
 
+# Define this to change the maximum number of storage nodes in S-expression
+SIZE=1000000
+
+# C compiler options you can tweak.
+COPTS=-g -O
+
 #: Build everything
 all: $(ALL)
 
 #: Build C LISP interpreter
 lisp: lisp.c
-	cc -O -olisp lisp.c
+	cc $(COPTS) -olisp lisp.c
 
 #: Build Java LISP interpreter
 lisp.class: lisp.java

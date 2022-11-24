@@ -17,7 +17,12 @@ The above material all comes Archive.org:
 
 Links to the code can be found off of the latter site.
 
-File extensions ending in `.l` are LISPx programs; extensions ending in `.r` is output from running the program through the LISP interpreter.
+The code was originally written circa 1999-2000. Surprisingly, the main LISP interpreter, `lisp.c` still runs as written but gives a couple of warning.
+Removing warnings is a very trivial changes line (adding `int` to the front of `main()`) and adding a single `#include <stdlib.h>`
+
+However to preserve everything as written, the git branch `urtext` was created. See that for the original sources (or as close as I can get).
+
+File extensions ending in `.l` are LISP programs; extensions ending in `.r` is output from running the program through the LISP interpreter.
 
 I have written a small Makefile to facilitate compiling and running the code. If you have [`remake`](https://remake.readthedocs.io/en/latest/) installed, you can get a list of targets by running:
 `remake --tasks`:
@@ -31,4 +36,4 @@ run-fixedpoint       Run fixedpoint LISP example through the LISP interpreter
 ...
 ```
 
-(The above list is an example, it is abbreviated and probably out of date.)
+The above list is an example, it is abbreviated and probably out of date.
