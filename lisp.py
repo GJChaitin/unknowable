@@ -3,7 +3,7 @@ print("")
 
 
 global value             # dictionary giving lists of values of atoms
-value = {"nil":[[]]}     # nil is bound to empty list in initial dictionary
+value = {"nil":[]}       # nil is bound to empty list in initial dictionary
 
 
 def eval(e):
@@ -11,10 +11,7 @@ def eval(e):
      if isinstance(e, int) : return e   # integer constant
      if isinstance(e, str) :            # atom
           if e in value :
-               if value[e] == [] :
-                    return(e)                    # no value yields self
-               else:
-                    return (value[e])[0]         # look up first value of atom
+               return (value[e])                 # look up first value of atom
           else:
                return(e)                         # no value yields self
      f = eval(e[0])                              # evalute function
@@ -24,14 +21,11 @@ def eval(e):
         argument = e[1:]                         # list of arguments of lambda expression
         # list of values of arguments of lambda expression
         argument_value = [eval(argument[i]) for i in range(len(argument))]
+        save_dictionary = {x:value[x] for x in value}
         for i in range(len(variable)) :          # bind
-            if variable[i] in value :            # save previous values
-                value[variable[i]] = [argument_value[i]] + value[variable[i]]
-            else :
-                value[variable[i]] = [argument_value[i]]  # no previous values to save
+            value[variable[i]] = argument_value[i]
         valueofbody = eval(body)
-        for i in range(len(variable)) :          # unbind
-            value[variable[i]] = (value[variable[i]])[1:] # remove first value in list of values
+        value = save_dictionary                  # unbind
         return(valueofbody)
      if f == "quote": return e[1]                # quote literal
      if f == "'": return e[1]                    # quote literal
@@ -45,10 +39,10 @@ def eval(e):
      if len(e) == 3: y = eval(e[2])
      match f:
         case "eval" :                            # eval
-            save_values = value                  # save bindings
-            value = {"nil":[[]]}                 # initial bindings
+            save_dictionary = {x:value[x] for x in value}          # save bindings
+            value = {"nil":[]}                   # initial bindings
             save_value = eval(x)                 # evaluate argument
-            value = save_values                  # restore bindings
+            value = save_dictionary              # restore bindings
             return save_value                    # return value
         case "display" :                         # display
             out("DISPLAY",x)
@@ -122,7 +116,9 @@ def get_exp() : # get M-expression
              return get_exp2()
         case "car" | "cdr" | "atom" |"quote" | "'" | "display" | "eval" | "length"| "size" :
              return [token, get_exp()]
-        case "*" | "-" | "=" | "<" | ">" |"<=" | ">=" | "cons" | "lambda" | "+" | "^" | "define"  :
+        case "*" | "-" | "=" | "<" | ">" |"<=" | ">=" | "cons" | "lambda" | "+" | "^" :
+             return [token, get_exp(), get_exp()]
+        case "define" :
              return [token, get_exp(), get_exp()]
         case "if"  :
              return [token, get_exp(), get_exp(), get_exp()]
@@ -250,7 +246,7 @@ def define(exp) :
     if isinstance(symbol,list) :
         definition = ["lambda",symbol[1:],definition]
         symbol = symbol[0]
-    value[symbol] = [definition]
+    value[symbol] = definition
     out("DEFINE",symbol)
     out("VALUE",definition)
     print("")

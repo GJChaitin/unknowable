@@ -28,10 +28,10 @@ File extensions ending in `.l` are LISP programs; extensions ending in `.r` is o
 Running the C LISP interpreter
 ------------------------------
 
-After building the lisp executable (`make lisp`), run a lisp program, e.g. sets.l like this:
+After building the lisp executable (`make lisp`), run a lisp program, e.g. `sets.l` like this:
 
 ```
-./lisp < godel.l
+./lisp < sets.l
 ```
 
 
@@ -39,10 +39,10 @@ Running the LISP Python interpreter
 ------------------------------------
 
 
-To run a LISP program usin Python, Python 3.11 or newer is needed. You can run a program like `sets.l` this way:
+To run a LISP program using Python, Python 3.11 or newer is needed. You can run a program like `sets.l` like this:
 
 ```
-python lisp.py < godel.l
+python lisp.py < sets.l
 ```
 
 Using `make` to simpilify running
