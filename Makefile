@@ -24,12 +24,20 @@ lisp: lisp.c
 lisp.class: lisp.java
 	javac lisp.java
 
+#: Run programs via C LISP interpreter
+%.run:
+	./lisp < $(@:.run=.l)
+
+#: Run programs via Python LISP interpreter
+%.run-python:
+	python ./lisp.py < $(@:.run-python=.l)
+
 #: Run fixedpoint LISP example through the LISP interpreter
-run-fixedpoint: lisp fixedpoint.l
+fixedpoint: lisp fixedpoint.l
 	./lisp < fixedpoint.l
 
 #: Run godel LISP example through the LISP interpreter
-run-godel: lisp godel.l
+godel: lisp godel.l
 	./lisp < godel.l
 
 #: Run godel LISP example through the LISP interpreter
