@@ -17,10 +17,10 @@ def eval(e):
      global value
      if isinstance(e, int) : return e   # integer constant
      if isinstance(e, str) :            # atom
-          if e in value : 
+          if e in value :
                return (value[e])                 # look up value of atom
           else:
-               return(e)                         # no value yields self 
+               return(e)                         # no value yields self
      f = eval(e[0])                              # evalute function
      if isinstance(f,list) :                     # lambda expression
         body = f[2]
@@ -30,15 +30,15 @@ def eval(e):
         argument_value = [eval(argument[i]) for i in range(len(argument))]
         save_dictionary = {x:value[x] for x in value}   # copy dictionary
         for i in range(len(variable)) :          # bind
-            value[variable[i]] = argument_value[i] 
+            value[variable[i]] = argument_value[i]
         valueofbody = eval(body)
-        value = save_dictionary                  # unbind        
-        return(valueofbody) 
+        value = save_dictionary                  # unbind
+        return(valueofbody)
      if f == "quote": return e[1]                # quote literal
      if f == "'": return e[1]                    # quote literal
      if f == "lambda" : return(e)                # lambda expression literal
-     if f == "if" :                              # if 
-         if eval(e[1]) == "true" :        
+     if f == "if" :                              # if
+         if eval(e[1]) == "true" :
              return(eval(e[2]))                  # then
          else:
              return(eval(e[3]))                  # else
@@ -58,7 +58,7 @@ def eval(e):
             return(len(x))
         case "size" :                            # size
             return(size_it(x))
-        case "+" :                               # plus 
+        case "+" :                               # plus
             return(x + y)
         case "-" :                               # minus
             if y <= x :
@@ -95,25 +95,25 @@ def eval(e):
             else:
                return("false")
         case "atom" :                            # atom predicate
-            if x == [] :   
-               return("true") 
-            if isinstance(x,list): 
-               return("false") 
-            else: 
+            if x == [] :
+               return("true")
+            if isinstance(x,list):
+               return("false")
+            else:
                return("true")
         case "car":                              # car
             return x[0]
-        case "cdr" :                             # cdr 
-            return x[1:]                        
+        case "cdr" :                             # cdr
+            return x[1:]
         case "cons"  :                           # cons
             return [x] +  y
- 
+
 
 def get_token() :
     global tokens
     save = tokens[0]
-    tokens = tokens[1:] 
-    return save 
+    tokens = tokens[1:]
+    return save
 
 
 def get_exp() : # get M-expression
@@ -133,33 +133,28 @@ def get_exp() : # get M-expression
              return ["car",["cdr", get_exp()]]
         case "caddr"  :
              return ["car",["cdr",["cdr",get_exp()]]]
-        # let x be e1 in e2
-        # let (f x) be e1 in e2
         case "let"  :
-             function = get_exp()
-             if isinstance(function,list) :
-                 function_name = function[0]
-                 function_arguments = function[1:]
-                 body_of_function = get_exp()
-                 expression_to_evaluate = get_exp()
-                 return [["'",["lambda",[function_name],expression_to_evaluate]],
-                         ["'",["lambda",function_arguments,body_of_function]]]
+        # let (f x y z) be e1 in e2
+        # let f be e1 in e2
+             f = get_exp()
+             e1 = get_exp()
+             e2 = get_exp()
+             if isinstance(f,list) :
+                 return [["'",["lambda",[f[0]],e2]], ["'",["lambda",f[1:],e1]]]
              else:
-                 body_of_function = get_exp()
-                 expression_to_evaluate = get_exp()
-                 return [["'",["lambda",[function],expression_to_evaluate]],body_of_function]
+                 return [["'",["lambda",[f],e2]], e1]
         case "("  :
              lst = []
              while True :
                  next = get_exp()
-                 if next == ")" : 
+                 if next == ")" :
                     return lst
-                 lst = lst + [next]
+                 lst += [next]
         case _:
-             if token.isnumeric() :  
+             if token.isnumeric() :
                 return int(token)
              return token
-  
+
 
 def get_exp2() :  # get S-expression
     token = get_token()
@@ -170,13 +165,13 @@ def get_exp2() :  # get S-expression
                  next = get_exp2()
                  if next == ")" :
                     return lst
-                 lst = lst + [next]
+                 lst += [next]
         case _:
              if token.isnumeric() :
                 return int(token)
              return token
- 
- 
+
+
 def out(who,exp) :
     print(who,end=" ")
     out2(exp)
@@ -185,7 +180,7 @@ def out(who,exp) :
 
 
 def out2(exp) :
-    if exp == [] : 
+    if exp == [] :
         print("()",end="")
     else :
         if isinstance(exp,list) :
@@ -206,11 +201,11 @@ def size_it(exp) :
         return 2
     else :
         if isinstance(exp,list) :
-             size_in_characters = size_in_characters + 1
+             size_in_characters += 1
              for i in range(len(exp)) :
-                 size_in_characters = size_in_characters + size_it(exp[i]) + 1
+                 size_in_characters += size_it(exp[i]) + 1
         else :
-             size_in_characters = size_in_characters + len(str(exp))
+             size_in_characters += len(str(exp))
     return size_in_characters
 
 
@@ -220,49 +215,49 @@ def delimiters(string):
    for i in range(len(string)) :
        match (string[i]) :
           case "["  :
-             open_comments = open_comments + 1
+             open_comments += 1
              continue
           case "]"  :
-             open_comments = open_comments - 1
+             open_comments -= 1
              continue
-       if open_comments > 0 : 
+       if open_comments > 0 :
           continue
        match (string[i]) :
           case "'" :
-             newstring = newstring + " ' "
+             newstring += " ' "
           case '"' :
-             newstring = newstring + ' " '
+             newstring += ' " '
           case "(" :
-             newstring = newstring + " ( "
+             newstring += " ( "
           case ")" :
-             newstring = newstring + " ) "
+             newstring += " ) "
           case "\n" :
-             newstring = newstring + " "
+             newstring += " "
           case _ :
-             newstring = newstring + string[i]
+             newstring += string[i]
    return newstring
 
-    
+
 def define(exp) :
     global value
     symbol = exp[1]
     definition = exp[2]
-    if isinstance(symbol,list) : 
-        definition = ["lambda",symbol[1:],definition] 
+    if isinstance(symbol,list) :
+        definition = ["lambda",symbol[1:],definition]
         symbol = symbol[0]
     value[symbol] = definition
     out("DEFN",symbol)
     out("VALU",definition)
     print("")
     print("")
-    
+
 
 #
-# read eval print loop 
+# read eval print loop
 #
 
 import sys
-input_string = sys.stdin.read() 
+input_string = sys.stdin.read()
 print("MEXP input =")
 print("")
 print("")
