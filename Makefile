@@ -1,11 +1,24 @@
 # A simple Makefile to build a LISP interpreter
 .PHONY: all \
+	check \
 	clean \
 	run-fixedpoint \
 	run-godel \
 	run-sets
 
 ALL=lisp lisp.class
+BASH=${BASH:-bash}
+LISP_PROGRAMS=\
+    chaitin.l \
+    fixedpoint.l \
+    godel2.l \
+    godel3.l \
+    omega2.l \
+    omega3.l \
+    omega.l \
+    sets.l \
+    turing.l \
+    utm.l
 
 # Define this to change the maximum number of storage nodes in S-expression
 SIZE=1000000
@@ -43,6 +56,9 @@ godel: lisp godel.l
 #: Run godel LISP example through the LISP interpreter
 run-sets: lisp sets.l
 	./lisp < sets.l
+
+check: ./lisp $(LISP_PROGRAMS)
+	$(BASH) ./test-lisp-c.sh
 
 #: Clean programs
 clean:
