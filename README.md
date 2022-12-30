@@ -25,6 +25,8 @@ However to preserve everything as written, the git branch `urtext` was created. 
 
 File extensions ending in `.l` are LISP programs; extensions ending in `.r` is output from running the program through the LISP interpreter.
 
+File names that start in `x` are debugged and extended versions of their corresponding name without the `x`. For example `xgodel3.l` is an extended version of `godel3.l`.
+
 Running the C LISP interpreter
 ------------------------------
 
