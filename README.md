@@ -57,9 +57,11 @@ I have written a small Makefile to facilitate compiling the C program and runnin
 $ remake --tasks
 all                  Build everything
 clean                Clean programs
+fixedpoint           Run fixedpoint LISP example through the LISP interpreter
+godel                Run godel LISP example through the LISP interpreter
+godel.r              Run godel LISP example through the LISP interpreter
 lisp                 Build C LISP interpreter
-run-fixedpoint       Run fixedpoint LISP example through the LISP interpreter
-run-godel            Run godel LISP example through the LISP interpreter
+lisp.class           Build Java LISP interpreter
 ...
 ```
 
@@ -69,8 +71,14 @@ To run a LISP program using the C LISP interpreter, run `make` followed by the n
 
 For example, for `sets.l`:
 
+```shell
+$ make sets.run
 ```
-make sets.run
+To run a LISP program using the C LISP interpreter and save the output to a file, run `make` followed by the name of the LISP file, changing the final `.l` to `.r`.
+For example:
+
+```shell
+$ make sets.r
 ```
 
 To run a LISP program using the Python LISP interpreter, run `make` followed by the name of the LISP file, changing the final `.l` to `.python-run`.
@@ -78,6 +86,6 @@ To run a LISP program using the Python LISP interpreter, run `make` followed by 
 
 For example, for `sets.l`:
 
-```
-make sets.python-run
+```shell
+$ make sets.python-run
 ```

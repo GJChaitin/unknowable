@@ -43,19 +43,23 @@ lisp.class: lisp.java
 
 #: Run programs via Python LISP interpreter
 %.run-python:
-	python ./lisp.py < $(@:.run-python=.l)
+	python ./lisp.py < $*.l
 
 #: Run fixedpoint LISP example through the LISP interpreter
 fixedpoint: lisp fixedpoint.l
 	./lisp < fixedpoint.l
 
 #: Run godel LISP example through the LISP interpreter
-godel: lisp godel.l
+godel godel.r: lisp godel.l
 	./lisp < godel.l
 
-#: Run godel LISP example through the LISP interpreter
-run-sets: lisp sets.l
+#: Run sets LISP example through the LISP interpreter
+sets: lisp sets.l
 	./lisp < sets.l
+
+#: Run LISP over the <trget>.l and save output to <target>.r
+.l.r:
+	./lisp < $*.l > $*.r
 
 check: ./lisp $(LISP_PROGRAMS)
 	$(BASH) ./test-lisp-c.sh
