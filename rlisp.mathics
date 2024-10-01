@@ -82,101 +82,101 @@ Block[ { w, d, l = {} },
 ]
 
 (*************************************************
-Evaluation routines for primative LISP functions:
+Evaluation routines for primitive LISP functions:
    atom(), car(), cdr(), cons(), eval(), etc.
 **************************************************)
 
 atom[x_] :=
- MatchQ[ x, {}|_String|_Integer ]
+  MatchQ[ x, {}|_String|_Integer ]
 
 car[x_] :=
- If[ atom@ x, x, First@ x ]
+  If[ atom@ x, x, First@ x ]
 
 cdr[x_] :=
- If[ atom@ x, x, Rest@ x ]
+  If[ atom@ x, x, Rest@ x ]
 
 cons[x_,y_] :=
- If[ MatchQ[y,_String|_Integer], x, Prepend[y,x] ]
+  If[ MatchQ[y,_String|_Integer], x, Prepend[y,x] ]
 
 eval[e_] := (
- out = tape = {};
- display = True;
- print[ "expression", output@ e ];
- Catch[ eval[ e, {names,defs}, Infinity ] ]
+  out = tape = {};
+  display = True;
+  print[ "expression", output@ e ];
+  Catch[ eval[ e, {names,defs}, Infinity ] ]
 )
 
 eval[e_,Null,d_] := eval[e,{{"nil"},{{}}},d]
 
 eval[e2_,a_,d2_] := Block[ {e = e2, d = d2, f, args, x, y, z},
- If[ MatchQ[e,_Integer], Return@ e ];
- If[ atom@ e, Block[ {names,values,pos},
-   {names,values} = a;
-   pos = Position[names,e,{1}];
-   Return@ If[ pos == {}, e, values[[pos[[1,1]]]] ]
- ]];
- f = eval[car@ e,a,d];
- e = cdr@ e;
- Switch[
-   f, "'", Return@ car@ e,
-   "if", Return@ If[
-    eval[car@ e,a,d] =!= "false",
-    eval[car@cdr@ e,a,d],
-    eval[car@cdr@cdr@ e,a,d]
-   ]
- ];
- args = eval[#,a,d]& /@ e;
- x = car@ args;
- y = car@cdr@ args;
- z = car@cdr@cdr@ args;
- Switch[
-   f,
-   "read-bit", Return@ getbit[],
-   "read-exp", Return@ (getrecord[]; getexp[]),
-   "bits", Return@ Flatten[ ( Rest@ IntegerDigits[256 + #, 2] )& /@
-                              ToCharacterCode[ output@x <> "\n" ] ],
-   "car", Return@ car@ x,
-   "cdr", Return@ cdr@ x,
-   "cons", Return@ cons[x,y],
-   "size", Return@ StringLength@ output@ x,
-   "length", Return@ Length@ x,
-   "+", Return@ (nmb@x + nmb@y),
-   "-", Return@ If[ nmb@x < nmb@y, 0, nmb@x - nmb@y ],
-   "*", Return@ (nmb@x * nmb@y),
-   "^", Return@ (nmb@x ^ nmb@y),
-   "<", Return@ If[nmb@x < nmb@y, "true", "false"],
-   ">", Return@ If[nmb@x > nmb@y, "true", "false"],
-   ">=", Return@ If[nmb@x >= nmb@y, "true", "false"],
-   "<=", Return@ If[nmb@x <= nmb@y, "true", "false"],
-   "base10-to-2", Return@ IntegerDigits[nmb@x, 2],
-   "base2-to-10", Return@ Fold[ (2 #1 + If[#2===0,0,1])&, 0, x ],
-   "append", Return@ Join[ If[atom@x,{},x], If[atom@y,{},y] ],
-   "atom", Return@ If[ atom@ x, "true", "false" ],
-   "=", Return@ If[ x === y, "true", "false" ],
-   "display", Return@ (AppendTo[out,x];
+  If[ MatchQ[e,_Integer], Return@ e ];
+  If[ atom@ e, Block[ {names,values,pos},
+    {names,values} = a;
+    pos = Position[names,e,{1}];
+    Return@ If[ pos == {}, e, values[[pos[[1,1]]]] ]
+  ]];
+  f = eval[car@ e,a,d];
+  e = cdr@ e;
+  Switch[
+     f, "'", Return@ car@ e,
+    "if", Return@ If[
+     eval[car@ e,a,d] =!= "false",
+     eval[car@cdr@ e,a,d],
+     eval[car@cdr@cdr@ e,a,d]
+    ]
+  ];
+  args = eval[#,a,d]& /@ e;
+  x = car@ args;
+  y = car@cdr@ args;
+  z = car@cdr@cdr@ args;
+  Switch[
+    f,
+    "read-bit", Return@ getbit[],
+    "read-exp", Return@ (getrecord[]; getexp[]),
+    "bits", Return@ Flatten[ ( Rest@ IntegerDigits[256 + #, 2] )& /@
+                               ToCharacterCode[ output@x <> "\n" ] ],
+    "car", Return@ car@ x,
+    "cdr", Return@ cdr@ x,
+    "cons", Return@ cons[x,y],
+    "size", Return@ StringLength@ output@ x,
+    "length", Return@ Length@ x,
+    "+", Return@ (nmb@x + nmb@y),
+    "-", Return@ If[ nmb@x < nmb@y, 0, nmb@x - nmb@y ],
+    "*", Return@ (nmb@x * nmb@y),
+    "^", Return@ (nmb@x ^ nmb@y),
+    "<", Return@ If[nmb@x < nmb@y, "true", "false"],
+    ">", Return@ If[nmb@x > nmb@y, "true", "false"],
+    ">=", Return@ If[nmb@x >= nmb@y, "true", "false"],
+    "<=", Return@ If[nmb@x <= nmb@y, "true", "false"],
+    "base10-to-2", Return@ IntegerDigits[nmb@x, 2],
+    "base2-to-10", Return@ Fold[ (2 #1 + If[#2===0,0,1])&, 0, x ],
+    "append", Return@ Join[ If[atom@x,{},x], If[atom@y,{},y] ],
+    "atom", Return@ If[ atom@ x, "true", "false" ],
+    "=", Return@ If[ x === y, "true", "false" ],
+    "display", Return@ (AppendTo[out,x];
                If[ display, print[ "display", output@ x ] ];
                x),
-   "debug", Return@ (print[ "debug", output@ x ];
+    "debug", Return@ (print[ "debug", output@ x ];
                x)
- ];
- If[ d == 0, Throw@ "out-of-time" ];
- d--;
- Switch[
-   f,
-   "eval", Return@ eval[x,Null,d],
-   "try", Return@
-   Block[ {out = {}, tape = z, display = False, xx},
-     If[ x === "no-time-limit", xx = Infinity, xx = nmb@ x ];
-     If[ xx < d,
-     Catch@ {"success",eval[y,Null,xx],out} //
-     If[ # === "out-of-time", {"failure",#,out}, # ] & ,
-     Catch@ {"success",eval[y,Null,d],out} //
-     If[ # === "out-of-time", Throw@ #, # ] &
-     ] //
-     If[ # === "out-of-data", {"failure",#,out}, # ] &
-   ] (* end block *)
- ]; (* end switch *)
- f = cdr@ f;
- eval[ car@cdr@ f, bind[car@ f,args,a], d ]
+  ];
+  If[ d == 0, Throw@ "out-of-time" ];
+  d--;
+  Switch[
+    f,
+    "eval", Return@ eval[x,Null,d],
+    "try", Return@
+    Block[ {out = {}, tape = z, display = False, xx},
+      If[ x === "no-time-limit", xx = Infinity, xx = nmb@ x ];
+      If[ xx < d,
+      Catch@ {"success",eval[y,Null,xx],out} //
+      If[ # === "out-of-time", {"failure",#,out}, # ] & ,
+      Catch@ {"success",eval[y,Null,d],out} //
+      If[ # === "out-of-time", Throw@ #, # ] &
+      ] //
+      If[ # === "out-of-data", {"failure",#,out}, # ] &
+    ] (* end block *)
+  ]; (* end switch *)
+  f = cdr@ f;
+  eval[ car@cdr@ f, bind[car@ f,args,a], d ]
 ] (* eval block *)
 
 nmb[n_Integer] := n
